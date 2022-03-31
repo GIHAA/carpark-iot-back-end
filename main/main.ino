@@ -3,17 +3,27 @@
 
 #define FIREBASE_HOST "carpark-cb140-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "zF8jnuNaxVICYzlTxLYyYbMPXySSgSQEJJD6M8pB"
-#define WIFI_SSID "Dialog 4G 738"
-#define WIFI_PASSWORD "dbDF9DFD"
+#define WIFI_SSID "Carpark"
+#define WIFI_PASSWORD "12344567"
 #define block_dis 7 // cm
 #define min_dis 15 // cm
 #define TRIGGER 12 // d6
 #define ECHO 14 // d5
-#define TRIGGER2 5 // d1 
+#define TRIGGER2 5 // d1
 #define ECHO2 4 // d2
+#define TRIGGER3 0 // d3
+#define ECHO3 13 // d7
 
 void setup() {
+  
+  
   Serial.begin(9600);
+  pinMode(TRIGGER, OUTPUT);
+  pinMode(ECHO, INPUT);
+  pinMode(TRIGGER2, OUTPUT);
+  pinMode(ECHO2, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+
 
   // connect to wifi.
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -33,53 +43,91 @@ void setup() {
 
 void loop() {
 
-  long duration, distance , duration2, distance2;
- 
+  bool sen_1_blocked = false;
+  bool car_1_parked = false;
+  bool sen_2_blocked = false;
+  bool car_2_parked = false;
+
+  long duration, distance;
   digitalWrite(TRIGGER, LOW);
-  digitalWrite(TRIGGER2, LOW);   
   delayMicroseconds(2); 
   
   digitalWrite(TRIGGER, HIGH);
-  digitalWrite(TRIGGER2, HIGH);
   delayMicroseconds(10); 
   
   digitalWrite(TRIGGER, LOW);
-  digitalWrite(TRIGGER2, LOW);
   duration = pulseIn(ECHO, HIGH);
+  
+  distance = (duration/2) / 29.1; 
+/************************************************/
+   long duration2, distance2;
+  digitalWrite(TRIGGER2, LOW);
+  delayMicroseconds(2); 
+  
+  digitalWrite(TRIGGER2, HIGH);
+  delayMicroseconds(10); 
+  
+  digitalWrite(TRIGGER2, LOW);
   duration2 = pulseIn(ECHO2, HIGH);
   
-  distance = (duration/2) / 29.1; // final distance in cm
-  distance2 = (duration2/2) / 29.1;
+  distance2 = (duration2/2) / 29.1; 
   
-  Serial.println("Centimeter:");
-  Serial.print(distance1);
+  Serial.print("debug - distance1 :");
+  Serial.print(distance);
+  Serial.print("debug - distance2 :");
   Serial.print(distance2);
+  Serial.println("...........");
+
+  /*******************logic*********************/
+
+    if( distance < block_dis )
+        sen_1_blocked = true;
+    else
+        sen_1_blocked = false;
+
+    if( distance2 < block_dis )
+        sen_1_blocked = true;
+    else
+        sen_1_blocked = false;
 
 
-  if( distance < block_dis && distance2 < block_dis )
-    Firebase.setBool("sensor blocked", true);
-  else
-    Firebase.setBool("sensor blocked", false);
+
+    if( distance < min_dis )
+        car_1_parked = true;
+    else
+        car_1_parked = false;
+
+    if( distance2 < min_dis )
+        car_2_parked = true;
+    else
+        car_2_parked = false;
+
+    /*******************sending logic****************/
+
+    if( sen_1_blocked == false && sen_1_blocked == false ){
+    
+    }
 
 
-  if( distance < min_dis && distance2 < min_dis )
-    Firebase.setBool("car is parked", true);
-  else
-    Firebase.setBool("car is parked", false);
+
     
   // set value
   Firebase.setString("message", "carpark_iot_sensor_1");
   Firebase.setFloat("Distance", distance);
-  Firebase.setString("message", "carpark_iot_sensor_2");
   Firebase.setFloat("Distance2", distance2);
 
   // handle error
   if (Firebase.failed()) {
-      Serial.print("debug- sending falide");
+      Serial.print("debug- sending failed");
       Serial.println(Firebase.error());  
       return;
   }
- delay(1000);
+  
+ /*digitalWrite(LED_BUILTIN, HIGH);
+ delay(500);
+ digitalWrite(LED_BUILTIN, LOW);*/
+
+ 
  
 /*
   // get value 
