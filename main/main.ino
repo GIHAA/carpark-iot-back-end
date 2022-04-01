@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
+#include <Servo.h>
 
 #define FIREBASE_HOST "carpark-cb140-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "zF8jnuNaxVICYzlTxLYyYbMPXySSgSQEJJD6M8pB"
@@ -7,12 +8,19 @@
 #define WIFI_PASSWORD "12344567"
 #define block_dis 7 // cm
 #define min_dis 15 // cm
+#define car_dis 7 // cm
 #define TRIGGER 12 // d6
 #define ECHO 14 // d5
 #define TRIGGER2 5 // d1
 #define ECHO2 4 // d2
 #define TRIGGER3 0 // d3
 #define ECHO3 13 // d7
+#define pin 15 //d8
+
+//output d4 trigger - 2
+//input rx eco - 3
+
+Servo servo;
 
 void setup() {
   
@@ -22,7 +30,10 @@ void setup() {
   pinMode(ECHO, INPUT);
   pinMode(TRIGGER2, OUTPUT);
   pinMode(ECHO2, INPUT);
+  pinMode(TRIGGER3, OUTPUT);
+  pinMode(ECHO3, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
+  servo.attach(pin);
 
 
   // connect to wifi.
@@ -47,7 +58,8 @@ void loop() {
   bool car_1_parked = false;
   bool sen_2_blocked = false;
   bool car_2_parked = false;
-
+  bool incoming_car = false;
+/************************************************/
   long duration, distance;
   digitalWrite(TRIGGER, LOW);
   delayMicroseconds(2); 
@@ -71,11 +83,29 @@ void loop() {
   duration2 = pulseIn(ECHO2, HIGH);
   
   distance2 = (duration2/2) / 29.1; 
+
+ /************************************************/
+  long duration3, distance3;
+  digitalWrite(TRIGGER3, LOW);
+  delayMicroseconds(2); 
+  
+  digitalWrite(TRIGGER3, HIGH);
+  delayMicroseconds(10); 
+  
+  digitalWrite(TRIGGER3, LOW);
+  duration3 = pulseIn(ECHO3, HIGH);
+  
+  distance3 = (duration3/2) / 29.1; 
   
   Serial.print("debug - distance1 :");
-  Serial.print(distance);
+  Serial.println(distance);
   Serial.print("debug - distance2 :");
-  Serial.print(distance2);
+  Serial.println(distance2);
+  Serial.print("debug - distance3 :");
+  Serial.println(distance3);
+  Serial.println("...........");
+  Serial.println("...........");
+  Serial.println("...........");
   Serial.println("...........");
 
   /*******************logic*********************/
@@ -102,19 +132,39 @@ void loop() {
     else
         car_2_parked = false;
 
+    if( distance3 < car_dis )
+        incoming_car = true;
+
+    else
+        incoming_car = false;
+
     /*******************sending logic****************/
 
-    if( sen_1_blocked == false && sen_1_blocked == false ){
-    
+    if( incoming_car == true){
+      Firebase.setBool("incoming_car", true);
+      if( car_1_parked == false && car_2_parked == false )
+        servo.write(90);
     }
+    else{
+      Firebase.setBool("incoming_car", false);
+      servo.write(0);
+    }
+      
+    if( car_1_parked == true )
+      Firebase.setBool("Car_parked_spot1", true);
 
+    else
+      Firebase.setBool("Car_parked_spot1", false);
 
+    if( car_2_parked == true )
+      Firebase.setBool("Car_parked_spot2", true);
 
-    
-  // set value
-  Firebase.setString("message", "carpark_iot_sensor_1");
+    else
+      Firebase.setBool("Car_parked_spot2", false);
+
   Firebase.setFloat("Distance", distance);
   Firebase.setFloat("Distance2", distance2);
+  Firebase.setFloat("Distance3", distance3);
 
   // handle error
   if (Firebase.failed()) {
