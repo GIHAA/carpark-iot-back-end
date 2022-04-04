@@ -2,8 +2,8 @@
 #include <FirebaseArduino.h>
 #include <Servo.h>
 
-#define FIREBASE_HOST "carpark-cb140-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "zF8jnuNaxVICYzlTxLYyYbMPXySSgSQEJJD6M8pB"
+#define FIREBASE_HOST ""
+#define FIREBASE_AUTH ""
 #define WIFI_SSID "Carpark"
 #define WIFI_PASSWORD "12344567"
 #define block_dis 6 // cm
@@ -233,72 +233,5 @@ void loop() {
       Serial.println(Firebase.error());  
       return;
   }
-  
- /*digitalWrite(LED_BUILTIN, HIGH);
- delay(500);
- digitalWrite(LED_BUILTIN, LOW);*/
-
- 
- 
-/*
-  // get value 
-  Serial.print("number: ");
-  Serial.println(Firebase.getFloat("number"));
-  delay(1000);
-
-  // remove value
-  Firebase.remove("number");
-  delay(1000);
-
-  // set string value
-  Firebase.setString("message", "hello world");
-  // handle error
-  if (Firebase.failed()) {
-      Serial.print("setting /message failed:");
-      Serial.println(Firebase.error());  
-      return;
-  }
-  delay(1000);
-  
-  // set bool value
-  Firebase.setBool("truth", false);
-  // handle error
-  if (Firebase.failed()) {
-      Serial.print("setting /truth failed:");
-      Serial.println(Firebase.error());  
-      return;
-  }
-  delay(1000);
-
-  // append a new value to /logs
-  String name = Firebase.pushInt("logs", n++);
-  // handle error
-  if (Firebase.failed()) {
-      Serial.print("pushing /logs failed:");
-      Serial.println(Firebase.error());  
-      return;
-  }
-  Serial.print("pushed: /logs/");
-  Serial.println(name);
-  delay(1000);
-/*
-  long duration, distance;
- 
-  
-  digitalWrite(TRIGGER, LOW);  
-  delayMicroseconds(2); 
-  
-  digitalWrite(TRIGGER, HIGH);
-  delayMicroseconds(10); 
-  
-  digitalWrite(TRIGGER, LOW);
-  duration = pulseIn(ECHO, HIGH);
-  distance = (duration/2) / 29.1; // final distance in cm
-  
-  Serial.print(distance);
-  Serial.println("Centimeter:");
-  delay(1000);
-  */
-
   
 }
