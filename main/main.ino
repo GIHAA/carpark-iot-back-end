@@ -2,8 +2,8 @@
 #include <FirebaseArduino.h>
 #include <Servo.h>
 
-#define FIREBASE_HOST "carpark-cb140-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "zF8jnuNaxVICYzlTxLYyYbMPXySSgSQEJJD6M8pB"
+#define FIREBASE_HOST ""
+#define FIREBASE_AUTH ""
 #define WIFI_SSID "Carpark"
 #define WIFI_PASSWORD "12344567"
 #define block_dis 6 // cm
